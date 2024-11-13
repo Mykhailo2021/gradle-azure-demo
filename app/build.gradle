@@ -6,9 +6,16 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
+    // Existing plugins...
     id 'application'
+    // Add JaCoCo plugin
+    id 'jacoco'
 }
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -26,6 +33,10 @@ dependencies {
 
     // New dependency added for Apache Commons Lang
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    // Mockito dependencies for unit testing
+    testImplementation 'org.mockito:mockito-core:3.12.4'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -42,9 +53,35 @@ application {
 }
 
 tasks.named('test') {
-    // Use JUnit Platform for unit tests.
+    // Existing configuration...
     useJUnitPlatform()
+    // Generate JaCoCo report after tests
+    finalizedBy jacocoTestReport
 }
+
+tasks.named('jacocoTestReport') {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.5
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn jacocoTestCoverageVerification
+}
+
 
 // Custom task added to show project information
 task showProjectInfo {
@@ -59,5 +96,4 @@ task showProjectInfo {
         println "Java Version: $javaVersion"
         println "Main Class: $mainClassName"
     }
-}
-
+};
