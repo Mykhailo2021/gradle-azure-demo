@@ -15,7 +15,12 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
-    tasks: 'build'
+    tasks: 'build jacocoTestReport'
+
+- task: PublishCodeCoverageResults@2
+  inputs:
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/build/reports/jacoco/test/jacocoTestReport.xml'
+    pathToSources: '$(System.DefaultWorkingDirectory)/app/src/main/java/'
 
 - task: Gradle@3
   inputs:
